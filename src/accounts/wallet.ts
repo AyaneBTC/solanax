@@ -59,9 +59,21 @@ export function getWallets(wallets: string | string[]): Keypair[] {
   return wallets.map((wallet) => getWallet(wallet));
 }
 
-export function getWalletInfo(wallet: Keypair) {
-  return {
-    publicKey: wallet.publicKey.toBase58(),
-    secretKey: bs58.encode(wallet.secretKey),
-  };
+/**
+ * `logWalletInfo` function logs the wallet's public key and secret key.
+ * @param wallet A keypair or a string(keypair file path, a mnemonic, a secret key) or None.
+ * @see getWallet
+ */
+export function logWalletInfo(wallet?: string | Keypair) {
+  if (!wallet) {
+    wallet = getWallet();
+  }
+
+  if (typeof wallet === "string") {
+    wallet = getWallet(wallet);
+  }
+
+  console.log(`PublicKey: ${wallet.publicKey.toBase58()}`);
+  console.log(`SecretKey: ${bs58.encode(wallet.secretKey)}`);
+  console.log(`SecretKey(uint8): ${wallet.secretKey.toString()}`);
 }
