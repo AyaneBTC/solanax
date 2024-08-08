@@ -1,8 +1,10 @@
-import { Keypair } from "@solana/web3.js";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import bs58 from "bs58";
+import { Keypair } from "@solana/web3.js";
 import { mnemonicToSeedSync } from "bip39";
 import { derivePath } from "ed25519-hd-key";
-import fs from "fs";
 
 /**
  * `getWallet` function returns a keypair from a wallet file, a mnemonic, a secret key or None.
@@ -15,7 +17,11 @@ import fs from "fs";
  */
 export function getWallet(wallet?: string): Keypair {
   if (!wallet) {
-    wallet = fs.readFileSync("~/.config/solana/id.json", "utf-8");
+    const home = os.homedir();
+    wallet = fs.readFileSync(
+      path.join(home, ".config/solana/id.json"),
+      "utf-8"
+    );
   } else if (fs.existsSync(wallet)) {
     wallet = fs.readFileSync(wallet, "utf-8");
   }
@@ -38,11 +44,24 @@ export function getWallet(wallet?: string): Keypair {
  * `getWallets` function returns an array of keypairs from an array of wallets.
  *
  * @throws Error if wallet is not found or invalid.
- * @param wallets An array of wallets.
+ * @param wallets Wallets' directory path or an array of wallets.
  * @returns An array of keypairs.
  * @see getWallet
  *
  */
-export function getWallets(wallets: string[]): Keypair[] {
+export function getWallets(wallets: string | string[]): Keypair[] {
+  if (typeof wallets === "string") {
+    // read all the files in the `wallets` directory
+    wallets = fs
+      .readdirSync(wallets)
+      .map((file) => path.join(wallets as string, file));
+  }
   return wallets.map((wallet) => getWallet(wallet));
+}
+
+export function getWalletInfo(wallet: Keypair) {
+  return {
+    publicKey: wallet.publicKey.toBase58(),
+    secretKey: bs58.encode(wallet.secretKey),
+  };
 }
