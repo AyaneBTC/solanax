@@ -7,7 +7,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
  *
  * @param account public key of the account
  * @param token token mint address, or `true` to fetch all token balances, or `false` to skip fetching token balances
- * @param connection rpc connection, or uses default connection to mainnet-beta
+ * @param connection rpc connection, or uses default connection to devnet
  * @returns AccountBalanceTokensInfo including balance and token accounts
  */
 export async function getAccountBalanceTokensInfo(
@@ -17,7 +17,7 @@ export async function getAccountBalanceTokensInfo(
   connection?: Connection
 ): Promise<AccountBalanceTokensInfo> {
   if (!connection) {
-    connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
+    connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   }
 
   let accountBalance = 0;

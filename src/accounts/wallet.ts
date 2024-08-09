@@ -75,5 +75,5 @@ export function logWalletInfo(wallet?: string | Keypair) {
 
   console.log(`PublicKey: ${wallet.publicKey.toBase58()}`);
   console.log(`SecretKey: ${bs58.encode(wallet.secretKey)}`);
-  console.log(`SecretKey(uint8): ${wallet.secretKey.toString()}`);
+  console.log(`SecretKey(uint8): [${wallet.secretKey.toString()}]`);
 }
