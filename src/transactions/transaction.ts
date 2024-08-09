@@ -7,8 +7,17 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { parseSolAmount } from "../utils";
+import { lamportsToSol, parseSolAmount } from "../utils";
 
+/**
+ * `transfer` sends lamports from sender to receiver.
+ *
+ * @param sender Keypair of the sender
+ * @param receiver Public key of the receiver
+ * @param solAmount amount of lamports to send, can be number or string(eg. "0.1", "1 sol", "1000000000", "all").
+ * @see parseSolAmount
+ * @param connection rpc connection, or uses default connection to devnet
+ */
 export async function transfer(
   sender: Keypair,
   receiver: PublicKey,
@@ -18,7 +27,11 @@ export async function transfer(
   if (!connection) {
     connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   }
-  solAmount = parseSolAmount(solAmount);
+  if (solAmount === "all") {
+    solAmount = (await connection.getBalance(sender.publicKey)) - 5000; // leave some for fees
+  } else {
+    solAmount = parseSolAmount(solAmount);
+  }
   const transaction = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: sender.publicKey,
@@ -27,15 +40,65 @@ export async function transfer(
     })
   );
   const signers = [sender];
-  const tx = await sendAndConfirmTransaction(connection, transaction, signers);
+  const signature = await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    signers
+  );
   console.log(
-    `Tx ${tx}: ${sender.publicKey} sent ${solAmount} lamports to ${receiver}`
+    `Signature ${signature}: ${sender.publicKey} sent ${lamportsToSol(
+      solAmount
+    )} sol (${solAmount} lamports) to ${receiver}`
   );
 }
 
-export function batch_transfer() {}
+/**
+ * `batch_transfer` sends lamports from sender to multiple receivers.
+ *
+ * @param sender Keypair of the sender
+ * @param receivers Public keys of the receivers
+ * @param solAmount amount of lamports to send, can be number or string(eg. "0.1", "1 sol", "1000000000").
+ * NOTE: "all" is not supported.
+ * @see parseSolAmount
+ * @param connection rpc connection, or uses default connection to devnet
+ * @see transfer
+ */
+export function batch_transfer(
+  sender: Keypair,
+  receivers: PublicKey[],
+  solAmount: number | string,
+  connection?: Connection
+) {
+  // TODO: implement batch transfer
+  if (solAmount === "all") {
+    throw new Error("Cannot send 'all' in batch transfer");
+  }
+  solAmount = parseSolAmount(solAmount);
+  for (const receiver of receivers) {
+    transfer(sender, receiver, solAmount, connection);
+  }
+}
 
-export function batch_gather() {}
+/**
+ * `batch_gather` sends lamports from multiple senders to a receiver.
+ *
+ * @param senders Keypairs of the senders
+ * @param receiver Public key of the receiver
+ * @param solAmount amount of lamports to send, can be number or string(eg. "0.1", "1 sol", "1000000000", "all").
+ * @see parseSolAmount
+ * @param connection rpc connection, or uses default connection to devnet
+ * @see transfer
+ */
+export function batch_gather(
+  senders: Keypair[],
+  receiver: PublicKey,
+  solAmount: number | string,
+  connection?: Connection
+) {
+  for (const sender of senders) {
+    transfer(sender, receiver, solAmount, connection);
+  }
+}
 
 export function batch_transfer_token() {}
 

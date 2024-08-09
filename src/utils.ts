@@ -9,17 +9,17 @@
  */
 export function parseSolAmount(amount: number | string): number {
   if (typeof amount === "number" && !Number.isInteger(amount)) {
-    amount = amount * 10 ** 9;
+    amount = solToLamports(amount);
   }
   if (typeof amount === "string") {
     const re = /(\d+(\.\d+)?)\s*sol/;
     const match = amount.match(re);
     if (match) {
-      amount = parseFloat(match[1]) * 10 ** 9;
+      amount = solToLamports(parseFloat(match[1]));
     } else {
       amount = parseFloat(amount);
       if (!Number.isInteger(amount)) {
-        amount = amount * 10 ** 9;
+        amount = solToLamports(amount);
       }
     }
   }
@@ -27,4 +27,12 @@ export function parseSolAmount(amount: number | string): number {
     amount = 0;
   }
   return amount;
+}
+
+export function lamportsToSol(lamports: number): number {
+  return lamports / 10 ** 9;
+}
+
+export function solToLamports(sol: number): number {
+  return sol * 10 ** 9;
 }
