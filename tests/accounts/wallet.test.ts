@@ -1,5 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
-import { getAccountBalanceTokensInfo, getWallet, getWallets, logWalletInfo } from "../../src";
+import {
+  getAccountBalanceTokensInfo,
+  getWallet,
+  getWallets,
+  logWalletInfo,
+} from "../../src";
 
 describe("Wallet", () => {
   it("should get wallet info", () => {
@@ -13,11 +18,19 @@ describe("Wallet", () => {
   });
 
   // it("should show account info", async () => {
-  //   const account = new PublicKey("8CcSMDuzoRcBZ36uggJN9Fq8y2hGXeHifWxRFkuXM5t5"); // V
+  //   const account = new PublicKey(
+  //     "8CcSMDuzoRcBZ36uggJN9Fq8y2hGXeHifWxRFkuXM5t5"
+  //   ); // V
   //   const token = new PublicKey("2Eb2d8QA2z1YQG7JGPxfwr7Si3HxmFTGxihDkCTyzbSo"); // a random token
-  //   const tokenInfo = await getAccountBalanceTokensInfo(account, true, token);
+  //   const tokenInfo = await getAccountBalanceTokensInfo(account, {
+  //     balance: true,
+  //     token,
+  //   });
   //   console.log(tokenInfo);
-  //   const accountInfo = await getAccountBalanceTokensInfo(account, true, true);
+  //   const accountInfo = await getAccountBalanceTokensInfo(account, {
+  //     balance: true,
+  //     token: true,
+  //   });
   //   console.log(accountInfo);
   // });
 });

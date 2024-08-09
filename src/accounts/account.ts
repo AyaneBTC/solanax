@@ -6,14 +6,20 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
  * `getAccountBalanceTokensInfo` fetches the balance and token accounts of a given account.
  *
  * @param account public key of the account
- * @param token token mint address, or `true` to fetch all token balances, or `false` to skip fetching token balances
+ * @param config 
+ * `balance`: whether to get account balance, default `false`. 
+ * 
+ * `token`: token mint address, or token program id(if starts with "Token"), 
+ * or `true` to fetch all token balances, or `false` to skip fetching token balances, default `false`.
  * @param connection rpc connection, or uses default connection to devnet
  * @returns AccountBalanceTokensInfo including balance and token accounts
  */
 export async function getAccountBalanceTokensInfo(
   account: PublicKey,
-  balance: boolean = false,
-  token: boolean | PublicKey = false,
+  config: {
+    balance?: boolean;
+    token?: boolean | PublicKey;
+  } = { balance: false, token: false },
   connection?: Connection
 ): Promise<AccountBalanceTokensInfo> {
   if (!connection) {
@@ -21,27 +27,27 @@ export async function getAccountBalanceTokensInfo(
   }
 
   let accountBalance = 0;
-  if (balance) {
+  if (config.balance) {
     accountBalance = await connection.getBalance(account);
   }
 
   let tokens: TokenAccount[] = [];
-  if (token instanceof PublicKey) {
+  if (config.token instanceof PublicKey) {
     // fetch specific token balance
     let tokenAccounts;
-    if (token.toString().startsWith("Token")) {
+    if (config.token.toString().startsWith("Token")) {
       tokenAccounts = await connection.getParsedTokenAccountsByOwner(account, {
-        programId: token,
+        programId: config.token,
       });
     } else {
       tokenAccounts = await connection.getParsedTokenAccountsByOwner(account, {
-        mint: token,
+        mint: config.token,
       });
     }
     tokens = tokenAccounts.value.map(
       (tokenAccount) => tokenAccount as TokenAccount
     );
-  } else if (token) {
+  } else if (config.token) {
     // fetch all token balances
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
       account,
