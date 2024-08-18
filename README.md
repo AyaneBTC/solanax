@@ -28,7 +28,7 @@ Use following command to add this extension to your project.
 
 `transfer`: transfer SOL. The amount can have different formats, you can refer to `parseSolAmount`.
 
-`batch_transfer` / `batch_gather`: batch 
+`batch_transfer` / `batch_gather`: batch version of transfer.
 
 ### Utils
 
